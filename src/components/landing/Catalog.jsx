@@ -150,10 +150,11 @@ export default function Catalog({ activeCat, setActiveCat, openPopup }) {
 }
 
 function PromoCard({ c, onReveal, onToggleHeart }) {
-  // Локальное «раскрыто» — на лендинге всегда false, потому что onReveal
-  // навигирует. Но если когда-нибудь лендинг разрешит локальный reveal,
-  // достаточно будет setRevealed(true) после успешного раскрытия.
-  const [revealed] = useState(false);
+  // copied — флаг «пользователь реально скопировал код». На лендинге сейчас
+  // всегда false (onReveal навигирует), но если когда-нибудь лендинг
+  // разрешит локальное копирование без ухода в /lk, достаточно будет
+  // setCopied(true) в обработчике копирования.
+  const [copied] = useState(false);
   const [vote, setVoteState] = useState(() => getVote(c.id));
 
   const fresh = freshnessBadge(c.last_checked_at);
@@ -208,19 +209,20 @@ function PromoCard({ c, onReveal, onToggleHeart }) {
         <button type="button" className="reveal-btn" onClick={onReveal}>Показать</button>
       </div>
 
-      {(revealed || vote) && (
+      {(copied || vote) && (
         <div className="gdk-vote-block">
           {vote === 'confirmed' ? (
-            <div className="gdk-vote-result gdk-vote-result-ok">✓ Вы подтвердили что код работает</div>
+            <span className="gdk-vote-result gdk-vote-result-ok">✓ Вы подтвердили что код работает</span>
           ) : vote === 'complained' ? (
-            <div className="gdk-vote-result gdk-vote-result-grey">Жалоба отправлена. Спасибо за помощь</div>
+            <span className="gdk-vote-result gdk-vote-result-grey">Жалоба отправлена. Спасибо за помощь</span>
           ) : (
             <>
-              <button type="button" className="gdk-vote-btn gdk-vote-yes" onClick={handleYes}>
-                <span className="gdk-vote-icon">✓</span> Сработал
+              <button type="button" className="gdk-vote-link gdk-vote-yes" onClick={handleYes}>
+                ✓ Сработал
               </button>
-              <button type="button" className="gdk-vote-btn gdk-vote-no" onClick={handleNo}>
-                <span className="gdk-vote-icon">✗</span> Не сработал
+              <span className="gdk-vote-sep" aria-hidden="true">·</span>
+              <button type="button" className="gdk-vote-link gdk-vote-no" onClick={handleNo}>
+                ✗ Не сработал
               </button>
             </>
           )}

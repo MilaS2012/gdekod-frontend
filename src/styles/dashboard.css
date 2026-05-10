@@ -783,49 +783,68 @@ nav {
 /* «Действующий промокод» — золотой вариант verified-lbl */
 .verified-lbl.is-perennial { color: var(--gold); }
 
-/* Кнопки голосования (Сработал / Не сработал) */
+/* Голосование «Сработал / Не сработал» — текстовые ссылки, без рамок и
+   фона. Разделитель — золотая точка между ссылками. После голосования
+   на их месте — такой же текст в нужном цвете. */
 .gdk-vote-block {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 4px 10px;
     margin-top: 12px;
     padding-top: 12px;
     border-top: 1px solid var(--border);
 }
-.gdk-vote-btn {
+
+.gdk-vote-link {
     appearance: none;
     -webkit-appearance: none;
+    background: transparent;
     border: none;
-    border-radius: 8px;
-    padding: 10px 14px;
+    padding: 6px 8px;
     font-family: var(--font-body), inherit;
-    font-size: 13px;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.3;
     cursor: pointer;
-    color: #fff;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    line-height: 1;
-    transition: filter 0.15s, transform 0.05s;
+    text-decoration: none;
+    transition: text-decoration 0.1s;
 }
-.gdk-vote-btn:hover  { filter: brightness(1.08); }
-.gdk-vote-btn:active { transform: scale(0.98); }
-.gdk-vote-icon       { font-size: 14px; }
-.gdk-vote-yes        { background: var(--green); }
-.gdk-vote-no         { background: #6B7280; }
+.gdk-vote-link:hover { text-decoration: underline; text-underline-offset: 2px; }
+.gdk-vote-link:focus-visible {
+    outline: 2px solid var(--border-gold);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+.gdk-vote-yes { color: var(--green); }
+.gdk-vote-no  { color: #6B7280; }
+
+.gdk-vote-sep {
+    color: var(--gold);
+    font-size: 14px;
+    line-height: 1;
+    user-select: none;
+    pointer-events: none;
+}
 
 .gdk-vote-result {
-    grid-column: 1 / -1;
+    flex: 1 1 100%;
     text-align: center;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 10px 14px;
-    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 6px 8px;
+    line-height: 1.3;
 }
-.gdk-vote-result-ok    { color: var(--green); background: var(--green-dim); }
-.gdk-vote-result-grey  { color: #4B5563;       background: rgba(107,114,128,0.10); }
+.gdk-vote-result-ok    { color: var(--green); }
+.gdk-vote-result-grey  { color: #6B7280; }
+
+/* Совсем узкие экраны (≤320px): сводим ссылки в столбик, точку убираем. */
+@media (max-width: 320px) {
+    .gdk-vote-block { flex-direction: column; gap: 4px; }
+    .gdk-vote-sep   { display: none; }
+}
 
 /* Toast */
 .gdk-toast {

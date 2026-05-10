@@ -55,13 +55,8 @@ export function revealCode(id, code, btn) {
   btn.textContent = 'Скопировать';
   btn.classList.add('copy');
   btn.onclick = () => copyCode(code, btn);
-
-  // После раскрытия кода — показываем блок «Сработал / Не сработал»
-  // (или итог прошлого голосования). couponId берём из data-атрибута,
-  // который сетится при рендере карточки в dashboard-logic.js.
-  const card = btn.closest('.promo-card');
-  const couponId = btn.getAttribute('data-coupon-id') || code;
-  if (card && couponId) ensureVoteButtons(card, couponId);
+  // Блок голосования НЕ показываем здесь: «увидел символы» ещё не значит
+  // «попробовал применить». Триггер — успешное копирование, см. copyCode.
 }
 
 export function copyCode(code, btn) {
@@ -74,6 +69,14 @@ export function copyCode(code, btn) {
     if (typeof window.__addToMyPromos === 'function') {
       window.__addToMyPromos(code, btn);
     }
+
+    // Только теперь, после реального копирования, показываем блок
+    // голосования. Условие data-coupon-id отсекает кнопки из «Мои
+    // промокоды» (там copy-only, без reveal-flow и без data-coupon-id).
+    const card = btn.closest('.promo-card');
+    const couponId = btn.getAttribute('data-coupon-id');
+    if (card && couponId) ensureVoteButtons(card, couponId);
+
     setTimeout(() => {
       btn.textContent = orig;
       btn.classList.remove('copied');
