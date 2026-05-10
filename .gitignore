@@ -3,3 +3,8 @@ dist
 .DS_Store
 *.log
 .vite
+
+# Локальные переменные окружения. Шаблоны (.env.example) коммитим, реальные — нет.
+.env
+.env.local
+.env.*.local
