@@ -774,3 +774,212 @@ nav {
   .cookie-btn-accept { flex: 1; text-align: center; padding: 12px; }
   .cookie-btn-decline { flex: 1; text-align: center; padding: 12px; }
 }
+
+/* =============================================================================
+   v14: бейдж свежести / голосование / toast / модал жалобы
+   Используется и на лендинге, и в ЛК. См. также аналогичный блок в landing.css.
+   ============================================================================= */
+
+/* «Действующий промокод» — золотой вариант verified-lbl */
+.verified-lbl.is-perennial { color: var(--gold); }
+
+/* Кнопки голосования (Сработал / Не сработал) */
+.gdk-vote-block {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+}
+.gdk-vote-btn {
+    appearance: none;
+    -webkit-appearance: none;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: var(--font-body), inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    line-height: 1;
+    transition: filter 0.15s, transform 0.05s;
+}
+.gdk-vote-btn:hover  { filter: brightness(1.08); }
+.gdk-vote-btn:active { transform: scale(0.98); }
+.gdk-vote-icon       { font-size: 14px; }
+.gdk-vote-yes        { background: var(--green); }
+.gdk-vote-no         { background: #6B7280; }
+
+.gdk-vote-result {
+    grid-column: 1 / -1;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 14px;
+    border-radius: 8px;
+}
+.gdk-vote-result-ok    { color: var(--green); background: var(--green-dim); }
+.gdk-vote-result-grey  { color: #4B5563;       background: rgba(107,114,128,0.10); }
+
+/* Toast */
+.gdk-toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translate(-50%, 20px);
+    background: rgba(28,22,10,0.92);
+    color: #fff;
+    padding: 12px 22px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    font-family: var(--font-body), inherit;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+    opacity: 0;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 10000;
+    pointer-events: none;
+    max-width: calc(100vw - 40px);
+    text-align: center;
+}
+.gdk-toast.gdk-toast-show {
+    opacity: 1;
+    transform: translate(-50%, 0);
+}
+
+/* Модал жалобы */
+.gdk-complaint-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(28,22,10,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+.gdk-complaint-overlay.gdk-complaint-open { opacity: 1; }
+
+.gdk-complaint-modal {
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border-gold);
+    border-radius: 16px;
+    padding: 28px 24px 22px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+    width: 100%;
+    max-width: 420px;
+    transform: translateY(8px);
+    transition: transform 0.2s ease;
+}
+.gdk-complaint-overlay.gdk-complaint-open .gdk-complaint-modal {
+    transform: translateY(0);
+}
+
+.gdk-complaint-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    color: var(--text-muted);
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    line-height: 1;
+}
+.gdk-complaint-close:hover { background: var(--gold-dim); color: var(--text); }
+
+.gdk-complaint-title {
+    font-family: var(--font-display), inherit;
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 16px;
+    padding-right: 36px;
+}
+
+.gdk-complaint-form { display: flex; flex-direction: column; gap: 8px; }
+
+.gdk-complaint-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    color: var(--text);
+    transition: border-color 0.15s, background 0.15s;
+}
+.gdk-complaint-option:hover {
+    border-color: var(--border-gold);
+    background: var(--gold-dim);
+}
+.gdk-complaint-option input[type="radio"] {
+    margin: 0;
+    accent-color: var(--gold);
+    cursor: pointer;
+}
+
+.gdk-complaint-other {
+    margin-top: 6px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-family: var(--font-body), inherit;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--surface);
+    resize: vertical;
+    min-height: 70px;
+    width: 100%;
+    box-sizing: border-box;
+}
+.gdk-complaint-other:focus {
+    outline: none;
+    border-color: var(--border-gold);
+}
+
+.gdk-complaint-submit {
+    margin-top: 8px;
+    background: var(--gold);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 3px 12px rgba(168,107,0,0.25);
+    transition: background 0.15s;
+}
+.gdk-complaint-submit:hover { background: var(--gold-light); }
+
+/* Mobile: модал — iOS sheet снизу */
+@media (max-width: 640px) {
+    .gdk-complaint-overlay {
+        align-items: flex-end;
+        padding: 0;
+    }
+    .gdk-complaint-modal {
+        max-width: 100%;
+        border-radius: 16px 16px 0 0;
+        transform: translateY(100%);
+        padding-bottom: calc(22px + env(safe-area-inset-bottom, 0));
+    }
+    .gdk-complaint-overlay.gdk-complaint-open .gdk-complaint-modal {
+        transform: translateY(0);
+    }
+}

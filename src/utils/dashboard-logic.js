@@ -1,6 +1,9 @@
 // Логика дашборда — портирована из оригинального gdekod-lk.html
 import { PARTNERS, brandAvatar, isExpired, expiresText, catLabel } from './partners.js';
 import { renderCode, revealCode, copyCode } from './codes.js';
+import { freshnessBadge } from './freshnessBadge.js';
+import { hasVoted } from './voting.js';
+import { ensureVoteButtons } from './voteButtons.js';
 
 // ── Избранное (localStorage) ──
 let favourites = [];
@@ -156,6 +159,7 @@ export function showPartner(name) {
   let html = '';
   activePromos.forEach((pr, i) => {
     const cid = `ppartner-${i}`;
+    const fresh = freshnessBadge(pr.last_checked_at);
     html += `
       <div class="promo-card">
         <div class="card-top">
@@ -172,10 +176,10 @@ export function showPartner(name) {
         <div class="card-desc">${pr.desc}</div>
         <div class="card-code-row">
           <span class="partial-code" id="${cid}"></span>
-          <button class="reveal-btn" data-cid="${cid}" data-code="${pr.code}">Показать</button>
+          <button class="reveal-btn" data-cid="${cid}" data-code="${pr.code}" data-coupon-id="${pr.code}">Показать</button>
         </div>
         <div class="card-footer">
-          <span class="verified-lbl">✓ Проверено ${pr.verified} назад</span>
+          <span class="verified-lbl ${fresh.color === 'gold' ? 'is-perennial' : ''}">${fresh.text}</span>
         </div>
         <button class="card-heart" title="В избранное">♡</button>
       </div>`;
@@ -185,6 +189,13 @@ export function showPartner(name) {
   bindRevealButtons(grid);
   bindHeartButtons(grid);
   restoreHearts(grid);
+
+  // Если по этому промокоду уже было голосование — показать итог сразу,
+  // не дожидаясь повторного нажатия «Показать».
+  grid.querySelectorAll('.promo-card').forEach((card, i) => {
+    const couponId = activePromos[i]?.code;
+    if (couponId && hasVoted(couponId)) ensureVoteButtons(card, couponId);
+  });
 }
 
 export function backToPartners() {
@@ -316,11 +327,11 @@ export function renderFavourites() {
     const code = f.code || promo?.code || '';
     const disc = f.discount || promo?.disc || '';
     const desc = f.desc || promo?.desc || '';
-    const verified = promo?.verified ? `${promo.verified} назад` : (f.verified?.replace(/^[✓\s]*(Проверено\s*)?/, '') || '');
     const expires = promo?.expires || null;
     const cid = `fav-${idx}`;
     cids.push({ cid, code });
     const expired_card = isExpired(expires);
+    const fresh = freshnessBadge(promo?.last_checked_at);
     cards += `
       <div class="promo-card" style="${expired_card ? 'opacity:0.6;' : ''}">
         <div class="card-top">
@@ -341,10 +352,10 @@ export function renderFavourites() {
         <div class="card-desc">${desc}</div>
         <div class="card-code-row">
           <span class="partial-code" id="${cid}"></span>
-          <button class="reveal-btn" data-cid="${cid}" data-code="${code}">Показать</button>
+          <button class="reveal-btn" data-cid="${cid}" data-code="${code}" data-coupon-id="${code}">Показать</button>
         </div>
         <div class="card-footer">
-          <span class="verified-lbl">✓ Проверено ${verified}</span>
+          <span class="verified-lbl ${fresh.color === 'gold' ? 'is-perennial' : ''}">${fresh.text}</span>
         </div>
         <button class="card-heart active" data-fav-shop="${f.shop.replace(/"/g, '&quot;')}" data-fav-disc="${f.discount.replace(/"/g, '&quot;')}">♥</button>
       </div>`;
@@ -357,6 +368,12 @@ export function renderFavourites() {
 
   cids.forEach(({ cid, code }) => { if (code) renderCode(cid, code); });
   bindRevealButtons(container);
+
+  // То же для избранного — сразу показать итог голосования, если есть.
+  container.querySelectorAll('.promo-card').forEach((card, i) => {
+    const couponId = cids[i]?.code;
+    if (couponId && hasVoted(couponId)) ensureVoteButtons(card, couponId);
+  });
   // Heart removal on favourites
   container.querySelectorAll('.card-heart').forEach((btn) => {
     btn.addEventListener('click', () => {

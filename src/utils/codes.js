@@ -1,4 +1,6 @@
 // Частичный показ промокода (3 случайных символа скрыты)
+import { ensureVoteButtons } from './voteButtons.js';
+
 export function seededPositions(code) {
   let h = 0;
   for (let i = 0; i < code.length; i++) h = (h * 31 + code.charCodeAt(i)) & 0xffff;
@@ -53,6 +55,13 @@ export function revealCode(id, code, btn) {
   btn.textContent = 'Скопировать';
   btn.classList.add('copy');
   btn.onclick = () => copyCode(code, btn);
+
+  // После раскрытия кода — показываем блок «Сработал / Не сработал»
+  // (или итог прошлого голосования). couponId берём из data-атрибута,
+  // который сетится при рендере карточки в dashboard-logic.js.
+  const card = btn.closest('.promo-card');
+  const couponId = btn.getAttribute('data-coupon-id') || code;
+  if (card && couponId) ensureVoteButtons(card, couponId);
 }
 
 export function copyCode(code, btn) {

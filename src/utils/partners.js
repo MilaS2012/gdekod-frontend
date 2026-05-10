@@ -1,20 +1,71 @@
 // Данные партнёров (магазины и промокоды)
+//
+// last_checked_at вычисляется на старте модуля относительно текущего момента.
+// Это значит, что в данных есть ровно по нескольку промокодов в каждой
+// freshness-группе:
+//    1–3 ч  → "✓ Проверено N часов назад"
+//    4–14 ч → "✓ Проверено сегодня"
+//    30 ч   → "✓ Проверено вчера"
+//    60 ч   → "✓ Действующий промокод" (золотой)
+// Поле verified ('5 ч' и т.п.) сохранено для обратной совместимости с уже
+// сохранёнными favourites в localStorage.
+const hoursAgo = (h) => new Date(Date.now() - h * 3600 * 1000).toISOString();
+
 export const PARTNERS = [
-  { name: 'Авиасейлс', domain: 'aviasales.ru', cat: 'travel', promos: [{ disc: '−500 ₽', desc: 'На первый заказ', code: 'AVIA500R', verified: '2 ч', expires: '2026-05-31' }] },
-  { name: 'AliExpress', domain: 'aliexpress.ru', cat: 'elektronika', promos: [{ disc: '−300 ₽', desc: 'На заказ от 2 000 ₽', code: 'ALI300APP', verified: '3 ч', expires: null }, { disc: '−10%', desc: 'На электронику', code: 'ALIELEC10', verified: '5 ч', expires: '2026-06-15' }] },
-  { name: 'билайн', domain: 'beeline.ru', cat: 'other', promos: [{ disc: '−20%', desc: 'На тариф при смене', code: 'BEE20NEW', verified: '8 ч', expires: null }] },
-  { name: 'Wildberries', domain: 'wildberries.ru', cat: 'odezhda', promos: [{ disc: '−500 ₽', desc: 'На заказ от 3 000 ₽', code: 'WB500RUB', verified: '2 ч', expires: '2026-04-20' }, { disc: '−15%', desc: 'На первый заказ', code: 'WB15NEW', verified: '4 ч', expires: '2026-06-01' }, { disc: '−300 ₽', desc: 'На одежду от 2 000 ₽', code: 'WB300CLO', verified: '1 ч', expires: '2026-07-01' }, { disc: '−10%', desc: 'На обувь', code: 'WB10SHO', verified: '3 ч', expires: null }] },
-  { name: 'DNS', domain: 'dns-shop.ru', cat: 'elektronika', promos: [{ disc: '−2 000 ₽', desc: 'На ноутбуки от 50 000 ₽', code: 'DNS2000N', verified: '8 ч', expires: '2026-06-10' }] },
-  { name: 'Delivery Club', domain: 'delivery-club.ru', cat: 'eda', promos: [{ disc: '−300 ₽', desc: 'На первый заказ от 800 ₽', code: 'DC300FIR', verified: '3 ч', expires: '2026-05-30' }] },
-  { name: 'Золотое Яблоко', domain: 'goldapple.ru', cat: 'krasota', promos: [{ disc: '−10%', desc: 'На первый заказ', code: 'GOLD10NW', verified: '3 ч', expires: '2026-05-02' }, { disc: '−15%', desc: 'На уходовую косметику', code: 'GOLDCARE', verified: '6 ч', expires: '2026-06-20' }] },
-  { name: 'Zara', domain: 'zara.com', cat: 'odezhda', promos: [{ disc: '−10%', desc: 'На новую коллекцию', code: 'ZARA10SS', verified: '6 ч', expires: '2026-06-01' }] },
-  { name: 'Ситилинк', domain: 'citilink.ru', cat: 'elektronika', promos: [{ disc: '−5%', desc: 'На весь заказ от 10 000 ₽', code: 'CITI5PCT', verified: '4 ч', expires: '2026-05-01' }, { disc: '−10%', desc: 'На смартфоны', code: 'CITI10SM', verified: '3 ч', expires: '2026-06-30' }] },
-  { name: 'Самокат', domain: 'samokat.ru', cat: 'eda', promos: [{ disc: '−15%', desc: 'На первые 2 заказа', code: 'SAM15OFF', verified: '1 ч', expires: '2026-06-15' }] },
-  { name: 'Lamoda', domain: 'lamoda.ru', cat: 'odezhda', promos: [{ disc: '−15%', desc: 'На первый заказ', code: 'LAMODA15', verified: '5 ч', expires: '2026-06-15' }, { disc: '−500 ₽', desc: 'От 5 000 ₽', code: 'LAM500', verified: '7 ч', expires: null }] },
-  { name: 'М.Видео', domain: 'mvideo.ru', cat: 'elektronika', promos: [{ disc: '−3 000 ₽', desc: 'На технику от 30 000 ₽', code: 'MVIDEO3K', verified: '1 ч', expires: '2026-04-30' }, { disc: '−500 ₽', desc: 'На аксессуары', code: 'MVID500A', verified: '2 ч', expires: null }] },
-  { name: 'Ozon', domain: 'ozon.ru', cat: 'other', promos: [{ disc: '−10%', desc: 'На первый заказ', code: 'OZON10NEW', verified: '4 ч', expires: null }, { disc: '−500 ₽', desc: 'На заказ от 2 500 ₽', code: 'OZON500', verified: '6 ч', expires: '2026-05-28' }] },
-  { name: 'Яндекс Еда', domain: 'eda.yandex.ru', cat: 'eda', promos: [{ disc: '−20%', desc: 'На первые 3 заказа', code: 'EDA20NEW', verified: '14 ч', expires: null }] },
-  { name: 'Яндекс Маркет', domain: 'market.yandex.ru', cat: 'other', promos: [{ disc: '−300 ₽', desc: 'На первый заказ', code: 'YMKT300', verified: '2 ч', expires: '2026-05-31' }] },
+  { name: 'Авиасейлс', domain: 'aviasales.ru', cat: 'travel', promos: [
+    { disc: '−500 ₽', desc: 'На первый заказ', code: 'AVIA500R', verified: '2 ч', last_checked_at: hoursAgo(2),  expires: '2026-05-31' },
+  ] },
+  { name: 'AliExpress', domain: 'aliexpress.ru', cat: 'elektronika', promos: [
+    { disc: '−300 ₽', desc: 'На заказ от 2 000 ₽', code: 'ALI300APP', verified: '6 ч',  last_checked_at: hoursAgo(6),  expires: null },
+    { disc: '−10%',   desc: 'На электронику',     code: 'ALIELEC10', verified: '30 ч', last_checked_at: hoursAgo(30), expires: '2026-06-15' },
+  ] },
+  { name: 'билайн', domain: 'beeline.ru', cat: 'other', promos: [
+    { disc: '−20%', desc: 'На тариф при смене', code: 'BEE20NEW', verified: '60 ч', last_checked_at: hoursAgo(60), expires: null },
+  ] },
+  { name: 'Wildberries', domain: 'wildberries.ru', cat: 'odezhda', promos: [
+    { disc: '−500 ₽', desc: 'На заказ от 3 000 ₽', code: 'WB500RUB', verified: '2 ч',  last_checked_at: hoursAgo(2),  expires: '2026-04-20' },
+    { disc: '−15%',   desc: 'На первый заказ',     code: 'WB15NEW',  verified: '4 ч',  last_checked_at: hoursAgo(4),  expires: '2026-06-01' },
+    { disc: '−300 ₽', desc: 'На одежду от 2 000 ₽', code: 'WB300CLO', verified: '1 ч',  last_checked_at: hoursAgo(1),  expires: '2026-07-01' },
+    { disc: '−10%',   desc: 'На обувь',             code: 'WB10SHO',  verified: '30 ч', last_checked_at: hoursAgo(30), expires: null },
+  ] },
+  { name: 'DNS', domain: 'dns-shop.ru', cat: 'elektronika', promos: [
+    { disc: '−2 000 ₽', desc: 'На ноутбуки от 50 000 ₽', code: 'DNS2000N', verified: '6 ч', last_checked_at: hoursAgo(6), expires: '2026-06-10' },
+  ] },
+  { name: 'Delivery Club', domain: 'delivery-club.ru', cat: 'eda', promos: [
+    { disc: '−300 ₽', desc: 'На первый заказ от 800 ₽', code: 'DC300FIR', verified: '3 ч', last_checked_at: hoursAgo(3), expires: '2026-05-30' },
+  ] },
+  { name: 'Золотое Яблоко', domain: 'goldapple.ru', cat: 'krasota', promos: [
+    { disc: '−10%', desc: 'На первый заказ',         code: 'GOLD10NW', verified: '3 ч',  last_checked_at: hoursAgo(3),  expires: '2026-05-02' },
+    { disc: '−15%', desc: 'На уходовую косметику',   code: 'GOLDCARE', verified: '60 ч', last_checked_at: hoursAgo(60), expires: '2026-06-20' },
+  ] },
+  { name: 'Zara', domain: 'zara.com', cat: 'odezhda', promos: [
+    { disc: '−10%', desc: 'На новую коллекцию', code: 'ZARA10SS', verified: '6 ч', last_checked_at: hoursAgo(6), expires: '2026-06-01' },
+  ] },
+  { name: 'Ситилинк', domain: 'citilink.ru', cat: 'elektronika', promos: [
+    { disc: '−5%',  desc: 'На весь заказ от 10 000 ₽', code: 'CITI5PCT', verified: '4 ч', last_checked_at: hoursAgo(4), expires: '2026-05-01' },
+    { disc: '−10%', desc: 'На смартфоны',              code: 'CITI10SM', verified: '3 ч', last_checked_at: hoursAgo(3), expires: '2026-06-30' },
+  ] },
+  { name: 'Самокат', domain: 'samokat.ru', cat: 'eda', promos: [
+    { disc: '−15%', desc: 'На первые 2 заказа', code: 'SAM15OFF', verified: '1 ч', last_checked_at: hoursAgo(1), expires: '2026-06-15' },
+  ] },
+  { name: 'Lamoda', domain: 'lamoda.ru', cat: 'odezhda', promos: [
+    { disc: '−15%',   desc: 'На первый заказ', code: 'LAMODA15', verified: '5 ч', last_checked_at: hoursAgo(5), expires: '2026-06-15' },
+    { disc: '−500 ₽', desc: 'От 5 000 ₽',      code: 'LAM500',   verified: '7 ч', last_checked_at: hoursAgo(7), expires: null },
+  ] },
+  { name: 'М.Видео', domain: 'mvideo.ru', cat: 'elektronika', promos: [
+    { disc: '−3 000 ₽', desc: 'На технику от 30 000 ₽', code: 'MVIDEO3K', verified: '1 ч', last_checked_at: hoursAgo(1), expires: '2026-04-30' },
+    { disc: '−500 ₽',   desc: 'На аксессуары',           code: 'MVID500A', verified: '2 ч', last_checked_at: hoursAgo(2), expires: null },
+  ] },
+  { name: 'Ozon', domain: 'ozon.ru', cat: 'other', promos: [
+    { disc: '−10%',   desc: 'На первый заказ',          code: 'OZON10NEW', verified: '4 ч', last_checked_at: hoursAgo(4), expires: null },
+    { disc: '−500 ₽', desc: 'На заказ от 2 500 ₽',      code: 'OZON500',   verified: '6 ч', last_checked_at: hoursAgo(6), expires: '2026-05-28' },
+  ] },
+  { name: 'Яндекс Еда', domain: 'eda.yandex.ru', cat: 'eda', promos: [
+    { disc: '−20%', desc: 'На первые 3 заказа', code: 'EDA20NEW', verified: '14 ч', last_checked_at: hoursAgo(14), expires: null },
+  ] },
+  { name: 'Яндекс Маркет', domain: 'market.yandex.ru', cat: 'other', promos: [
+    { disc: '−300 ₽', desc: 'На первый заказ', code: 'YMKT300', verified: '2 ч', last_checked_at: hoursAgo(2), expires: '2026-05-31' },
+  ] },
 ].sort((a, b) => a.name.localeCompare(b.name, 'ru'));
 
 export const BRAND_COLORS = {
